@@ -1,0 +1,95 @@
+GO
+CREATE VIEW allCustomerAccounts AS
+SELECT
+      cp.nationalID,cp.first_name,cp.last_name,
+      cp.email,cp.address,cp.date_of_birth,
+      ca.mobileNo,ca.account_type,ca.balance,
+      ca.start_date,ca.status,ca.point
+FROM
+      Customer_profile cp
+JOIN
+      Customer_Account ca ON cp.nationalID = ca.nationalID
+WHERE 
+      ca.status='active';
+
+
+GO
+CREATE VIEW allSevicePlans AS
+SELECT * FROM Service_Plan;
+GO
+
+
+CREATE VIEW allBenefits AS
+SELECT
+      benefitID,description,validity_date,status,mobileNo
+FROM
+      Benefits
+WHERE
+     status = 'active';
+
+GO
+
+CREATE VIEW AccountPayments AS
+SELECT
+      p.paymentID,p.amount,p.date_of_payment,p.payment_method,
+      p.status,ca.mobileNo,ca.account_type,ca.balance,ca.status,ca.point
+FROM
+     payment p
+JOIN
+     Customer_Account ca ON p.mobileNo = ca.mobileNo;
+
+GO
+
+CREATE VIEW allShops AS
+SELECT* FROM Shop ;
+GO
+
+GO
+CREATE VIEW allResolvedTickets AS
+SELECT * FROM Technical_Support_Ticket
+WHERE status='Resolved';
+GO
+
+
+
+CREATE VIEW CustomerWallet AS
+SELECT 
+      w.walletID, w.current_balance, w.currency , w.last_modified_date , w.nationalID, w.mobileNo, cp.first_name, cp.last_name 
+FROM
+      Wallet w
+INNER JOIN
+      Customer_profile cp
+ON w.nationalID =cp.nationalID ;
+GO
+
+
+CREATE VIEW E_shopVouchers AS
+SELECT
+       s.shopID ,s.URL,s.rating,v.voucherID,v.value
+FROM
+       E_shop s
+INNER JOIN
+       Voucher v
+ON s.shopID = v.shopID
+
+WHERE v.redeem_date IS NOT NULL;
+GO
+
+GO
+CREATE VIEW PhysicalStoreVouchers AS
+SELECT
+       s.shopID ,s.address,s.working_hour.v.voucherID,v.value
+FROM
+       Physical_Shop s
+INNER JOIN
+       Voucher v
+ON s.shopID = v.shopID
+
+WHERE v.redeem_date IS NOT NULL;
+GO
+
+
+CREATE VIEW Num_of_cashback AS
+SELECT COUNT (CashbackID)
+FROM Cashback
+GROUP BY Cashback.walletID; 
