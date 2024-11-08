@@ -1,5 +1,3 @@
-CREATE DATABASE Telecom_Team_Team_66;
-
 GO
 CREATE PROCEDURE createAllTables
 AS
@@ -14,24 +12,16 @@ AS
         date_of_birth DATE
     );
 
-    CREATE DOMAIN account_type AS VARCHAR(50) 
-        CHECK(VALUE IN('Post Paid', 'Prepaid', 'Pay_as_you_go')
-    );
-    CREATE DOMAIN statusCA AS VARCHAR(50)
-        CHECK(VALUE IN ('active', 'onhold')
-    );
-    
-    CREATE TABLE Customer_Account (
-        mobileNo CHAR(11) PRIMARY KEY,
-        pass VARCHAR(50),
-        balance DECIMAL(10, 1),
-        account_type account_type,
-        start_date DATE,
-        status statusCA,
-        points INT DEFAULT 0,
-        nationalID INT,
-        FOREIGN KEY (nationalID) REFERENCES Customer_profile(nationalID)
-    );
+   CREATE TABLE Subscription (
+    mobileNo CHAR(11),
+    planID INT,
+    subscription_date DATE,
+    status VARCHAR(50) CHECK (status IN ('active', 'onhold')),
+    PRIMARY KEY (mobileNo, planID),
+    FOREIGN KEY (mobileNo) REFERENCES Customer_Account(mobileNo),
+    FOREIGN KEY (planID) REFERENCES Service_Plan(planID)
+);
+
 
     
     CREATE TABLE Service_Plan (
@@ -43,19 +33,16 @@ AS
         price INT,
         description VARCHAR(50)
     );
-     CREATE DOMAIN statusSub AS VARCHAR(50) 
-        CHECK(VALUE IN('active', 'onhold')
-    );
-    
-    CREATE TABLE Subscription (
-        mobileNo CHAR(11),
-        planID INT,
-        subscription_date DATE,
-        status statusSub,
-        PRIMARY KEY (mobileNo, planID),
-        FOREIGN KEY (mobileNo) REFERENCES Customer_Account(mobileNo),
-        FOREIGN KEY (planID) REFERENCES Service_Plan(planID)
-    );
+   CREATE TABLE Subscription (
+    mobileNo CHAR(11),
+    planID INT,
+    subscription_date DATE,
+    status VARCHAR(50) CHECK (status IN ('active', 'onhold')),
+    PRIMARY KEY (mobileNo, planID),
+    FOREIGN KEY (mobileNo) REFERENCES Customer_Account(mobileNo),
+    FOREIGN KEY (planID) REFERENCES Service_Plan(planID)
+);
+
 
     
     CREATE TABLE Plan_Usage (
@@ -71,21 +58,16 @@ AS
         FOREIGN KEY (planID) REFERENCES Service_Plan(planID)
     );
 
-    CREATE DOMAIN payment_methodD AS VARCHAR(50) 
-        CHECK(VALUE IN('cash', 'credit')
-    );
-     CREATE DOMAIN statusPay AS VARCHAR(50) 
-        CHECK(VALUE IN('successful', 'pending', 'rejected')
-    );
-    CREATE TABLE  Payment (
-        paymentID INT IDENTITY(1,1) PRIMARY KEY,
-        amount DECIMAL(10, 1),
-        date_of_payment DATE,
-        payment_method payment_methodD ,
-        status statusPay ,
-        mobileNo CHAR(11),
-        FOREIGN KEY (mobileNo) REFERENCES Customer_Account(mobileNo)
-    );
+  CREATE TABLE Payment (
+    paymentID INT IDENTITY(1,1) PRIMARY KEY,
+    amount DECIMAL(10, 1),
+    date_of_payment DATE,
+    payment_method VARCHAR(50) CHECK (payment_method IN ('cash', 'credit')),
+    status VARCHAR(50) CHECK (status IN ('successful', 'pending', 'rejected')),
+    mobileNo CHAR(11),
+    FOREIGN KEY (mobileNo) REFERENCES Customer_Account(mobileNo)
+);
+
 
     
     CREATE TABLE Process_Payment (
@@ -209,15 +191,13 @@ AS
         FOREIGN KEY (shopID) REFERENCES Shop(shopID)
     );
 
-    CREATE DOMAIN statusTECH AS
-        CHECK(VALUE IN('Open', 'In Progress', 'Resolved')
-    );
+   
     CREATE TABLE  Technical_Support_Ticket (
         ticketID INT IDENTITY(1,1) ,
         mobileNo CHAR(11) ,
         Issue_description VARCHAR(50),
         priority_level INT,
-        status statusTECH,
+        status VARCHAR(50) CHECK (status IN ('Open', 'In Progress', 'Resolved')),
         PRIMARY KEY (ticketID, mobileNo),
         FOREIGN KEY (mobileNo) REFERENCES Customer_Account(mobileNo)
     );
@@ -282,5 +262,3 @@ AS
     TRUNCATE TABLE E_shop;
     TRUNCATE TABLE Physical_Shop;
     TRUNCATE TABLE Shop;
-
-    
