@@ -1,7 +1,10 @@
+CREATE DATABASE Telecom_Team_Team_66;
+
 GO
+
+
 CREATE PROCEDURE createAllTables
 AS
-
     
     CREATE TABLE Customer_profile (
         nationalID INT PRIMARY KEY,
@@ -11,17 +14,19 @@ AS
         address VARCHAR(50),
         date_of_birth DATE
     );
-
-   CREATE TABLE Subscription (
-    mobileNo CHAR(11),
-    planID INT,
-    subscription_date DATE,
-    status VARCHAR(50) CHECK (status IN ('active', 'onhold')),
-    PRIMARY KEY (mobileNo, planID),
-    FOREIGN KEY (mobileNo) REFERENCES Customer_Account(mobileNo),
-    FOREIGN KEY (planID) REFERENCES Service_Plan(planID)
-);
-
+    
+    
+    CREATE TABLE Customer_Account (
+        mobileNo CHAR(11) PRIMARY KEY,
+        pass VARCHAR(50),
+        balance DECIMAL(10, 1),
+        account_type VARCHAR(50) CHECK (status IN('Post Paid', 'Prepaid', 'Pay_as_you_go')),
+        start_date DATE,
+        statusCA VARCHAR(50) CHECK (status IN('active', 'onhold')),
+        points INT DEFAULT 0,
+        nationalID INT,
+        FOREIGN KEY (nationalID) REFERENCES Customer_profile(nationalID)
+    );
 
     
     CREATE TABLE Service_Plan (
@@ -33,16 +38,17 @@ AS
         price INT,
         description VARCHAR(50)
     );
-   CREATE TABLE Subscription (
-    mobileNo CHAR(11),
-    planID INT,
-    subscription_date DATE,
-    status VARCHAR(50) CHECK (status IN ('active', 'onhold')),
-    PRIMARY KEY (mobileNo, planID),
-    FOREIGN KEY (mobileNo) REFERENCES Customer_Account(mobileNo),
-    FOREIGN KEY (planID) REFERENCES Service_Plan(planID)
-);
 
+    
+    CREATE TABLE Subscription (
+        mobileNo CHAR(11),
+        planID INT,
+        subscription_date DATE,
+        statusSub VARCHAR(50) CHECK (status IN('active', 'onhold')) ,
+        PRIMARY KEY (mobileNo, planID),
+        FOREIGN KEY (mobileNo) REFERENCES Customer_Account(mobileNo),
+        FOREIGN KEY (planID) REFERENCES Service_Plan(planID)
+    );
 
     
     CREATE TABLE Plan_Usage (
@@ -58,16 +64,16 @@ AS
         FOREIGN KEY (planID) REFERENCES Service_Plan(planID)
     );
 
-  CREATE TABLE Payment (
-    paymentID INT IDENTITY(1,1) PRIMARY KEY,
-    amount DECIMAL(10, 1),
-    date_of_payment DATE,
-    payment_method VARCHAR(50) CHECK (payment_method IN ('cash', 'credit')),
-    status VARCHAR(50) CHECK (status IN ('successful', 'pending', 'rejected')),
-    mobileNo CHAR(11),
-    FOREIGN KEY (mobileNo) REFERENCES Customer_Account(mobileNo)
-);
 
+    CREATE TABLE Payment (
+        paymentID INT IDENTITY(1,1) PRIMARY KEY,
+        amount DECIMAL(10, 1),
+        date_of_payment DATE,
+        payment_method VARCHAR(50) CHECK (status IN ('cash', 'credit')),
+        statusPay VARCHAR(50) CHECK (status IN('successful', 'pending', 'rejected')),
+        mobileNo CHAR(11),
+        FOREIGN KEY (mobileNo) REFERENCES Customer_Account(mobileNo)
+    );
 
     
     CREATE TABLE Process_Payment (
@@ -80,7 +86,7 @@ AS
     );
 
     
-    CREATE TABLE  Wallet (
+    CREATE TABLE Wallet (
         walletID INT PRIMARY KEY,
         current_balance DECIMAL(10, 2),
         currency VARCHAR(50),
@@ -103,7 +109,7 @@ AS
     );
 
     
-    CREATE TABLE  Benefits (
+    CREATE TABLE Benefits (
         benefitID INT PRIMARY KEY,
         description VARCHAR(50),
         validity_date DATE,
@@ -113,7 +119,7 @@ AS
     );
 
     
-    CREATE TABLE  Points_Group (
+    CREATE TABLE Points_Group (
         pointID INT ,
         benefitID INT,
         pointsAmount INT,
@@ -123,8 +129,8 @@ AS
         FOREIGN KEY (PaymentID) REFERENCES Payment(paymentID)
     );
 
-    
-    CREATE TABLE  Exclusive_Offer (
+
+    CREATE TABLE Exclusive_Offer (
         offerID INT ,
         benefitID INT,
         internet_offered INT,
@@ -133,9 +139,7 @@ AS
         PRIMARY KEY(offerID,benefitID),
         FOREIGN KEY (benefitID) REFERENCES Benefits(benefitID)
     );
-
-    
-    CREATE TABLE  Cashback (
+CREATE TABLE Cashback (
         CashbackID INT ,
         benefitID INT,
         walletID INT,
@@ -147,7 +151,7 @@ AS
     );
 
     
-    CREATE TABLE  Plan_Provides_Benefits (
+    CREATE TABLE Plan_Provides_Benefits (
         benefitID INT,
         planID INT,
         PRIMARY KEY (benefitID, planID),
@@ -156,14 +160,14 @@ AS
     );
 
     
-    CREATE TABLE  Shop (
+    CREATE TABLE Shop (
         shopID INT PRIMARY KEY,
         name VARCHAR(50),
         category VARCHAR(50)
     );
 
     
-    CREATE TABLE  Physical_Shop (
+    CREATE TABLE Physical_Shop (
         shopID INT,
         address VARCHAR(50),
         working_hours VARCHAR(50),
@@ -172,14 +176,14 @@ AS
     );
 
     
-    CREATE TABLE  E_shop (
+    CREATE TABLE E_shop (
         shopID INT PRIMARY KEY,
         URL VARCHAR(50),
         rating INT,
         FOREIGN KEY (shopID) REFERENCES Shop(shopID)
     );
 
-    CREATE TABLE  Voucher (
+    CREATE TABLE Voucher (
         voucherID INT PRIMARY KEY,
         value INT,
         expiry_date DATE,
@@ -191,55 +195,52 @@ AS
         FOREIGN KEY (shopID) REFERENCES Shop(shopID)
     );
 
-   
-    CREATE TABLE  Technical_Support_Ticket (
+
+    CREATE TABLE Technical_Support_Ticket (
         ticketID INT IDENTITY(1,1) ,
         mobileNo CHAR(11) ,
         Issue_description VARCHAR(50),
         priority_level INT,
-        status VARCHAR(50) CHECK (status IN ('Open', 'In Progress', 'Resolved')),
+        statusTECH VARCHAR(50) CHECK (status IN ('Open', 'In Progress', 'Resolved')),
         PRIMARY KEY (ticketID, mobileNo),
         FOREIGN KEY (mobileNo) REFERENCES Customer_Account(mobileNo)
     );
 
+go
 
+CREATE PROCEDURE [dropAllTables]
+AS
     
+    DROP TABLE Transfer_money;
+    DROP TABLE Points_Group;
+    DROP TABLE Cashback;
+    DROP TABLE Exclusive_Offer;
+    DROP TABLE Plan_Provides_Benefits;
+    DROP TABLE Benefits;
+    DROP TABLE Technical_Support_Ticket;
+    DROP TABLE Voucher;
+    DROP TABLE Plan_Usage;
+    DROP TABLE Subscription;
+    DROP TABLE Payment;
+    DROP TABLE Process_Payment;
+    DROP TABLE Wallet;
+    DROP TABLE Customer_Account;
+    DROP TABLE Service_Plan;
+    DROP TABLE Customer_profile;
+    DROP TABLE E_shop;
+    DROP TABLE Physical_Shop;
+    DROP TABLE Shop;
+
+go
 
 
-GO
-CREATE PROCEDURE dropAllTables
+CREATE PROCEDURE dropAllProceduresFunctionsViews
 AS
 
-    
-    DROP TABLE IF EXISTS Transfer_money;
-    DROP TABLE IF EXISTS Points_Group;
-    DROP TABLE IF EXISTS Cashback;
-    DROP TABLE IF EXISTS Exclusive_Offer;
-    DROP TABLE IF EXISTS Plan_Provides_Benefits;
-    DROP TABLE IF EXISTS Benefits;
-    DROP TABLE IF EXISTS Technical_Support_Ticket;
-    DROP TABLE IF EXISTS Voucher;
-    DROP TABLE IF EXISTS Plan_Usage;
-    DROP TABLE IF EXISTS Subscription;
-    DROP TABLE IF EXISTS Payment;
-    DROP TABLE IF EXISTS Process_Payment;
-    DROP TABLE IF EXISTS Wallet;
-    DROP TABLE IF EXISTS Customer_Account;
-    DROP TABLE IF EXISTS Service_Plan;
-    DROP TABLE IF EXISTS Customer_profile;
-    DROP TABLE IF EXISTS E_shop;
-    DROP TABLE IF EXISTS Physical_Shop;
-    DROP TABLE IF EXISTS Shop;
-   
 
 
---CREATE PROCEDURE dropAllProceduresFunctionsViews()
---BEGIN
+go
 
---END
-
-
-GO
 CREATE PROCEDURE clearAllTables
 AS
     
